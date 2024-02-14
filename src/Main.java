@@ -10,13 +10,13 @@ public class Main {
 
         ArrayList<User> allUsers = UserManager.getAllUser();
 
-        System.out.println("---------------------------------------------------------");
-        System.out.printf("%-4s %-10s %-10s %-30s\n", "ID", "Nom", "Prénom", "Email");
-        System.out.println("---------------------------------------------------------");
+        System.out.println("-----------------------------------------------------------------");
+        System.out.printf("| %-2s | %-10s | %-10s | %-30s | \n", "ID", "Nom", "Prénom", "Email");
+        System.out.println("-----------------------------------------------------------------");
         for (User user : allUsers) {
-            System.out.printf("%-4d %-10s %-10s %-30s\n",
+            System.out.printf("| %-2s | %-10s | %-10s | %-30s | \n",
                     user.getId(), user.getNom(), user.getPrenom(), user.getEmail());
         }
-        System.out.println("---------------------------------------------------------");
+        System.out.println("-----------------------------------------------------------------");
     }
 }
