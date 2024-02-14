@@ -1,85 +1,121 @@
 package com.addresse.model;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.lang.reflect.Field;
+import java.sql.*;
+import java.util.ArrayList;
 
 public class UserManager {
-    private static Connection connexion;
-    public UserManager(){
-        //assigner la connexion à la BDD.
-        connexion = DbConnexion.getConnexion();
-    }
-    public User addUser(User user) {
-        //instancier un Objet User
-        User userAdd = new User();
-        try{
-            //Connection à la BDD...
-            Statement stmt = connexion.createStatement();
-            //requête SQL
-            String sql = "INSERT INTO users (nom, prenom, email, password) VALUES (?, ?, ?, ?)";
-            //Préparation de la requête
-            PreparedStatement preparedStatement = connexion.prepareStatement(sql);
-            //Bind des paramètres
-            preparedStatement.setString(1, user.getNom());
-            preparedStatement.setString(2, user.getPrenom());
-            preparedStatement.setString(3, user.getEmail());
-            preparedStatement.setString(4, user.getPassword());
-            //Exécution de la requête
-            int addedRows = preparedStatement.executeUpdate();
-            //test si l'enregistrement est ok
-            if (addedRows > 0) {
-                //Création d'un Objet User
-                userAdd = new User();
-                userAdd.setNom(user.getNom());
-                userAdd.setPrenom(user.getPrenom());
-                userAdd.setEmail(user.getEmail());
-                userAdd.setPassword(user.getPassword());
-            }
-            //fermeture de la connexion BDD
-            stmt.close();
-            connexion.close();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        //Retourne un Objet User
-        return userAdd;
-    }
-    public User updateUser(User user) {
-        User updatedUser = new User();
+    private static Connection connexion = DbConnexion.getConnexion();
+
+    //Méthode pour ajouter un utilisateur
+    public static User addUser(User user) {
+        User useradd = new User();
         try {
-            // Connexion à la base de données
-            connexion = DbConnexion.getConnexion();
-
-            // Requête SQL pour mettre à jour l'utilisateur
-            String sql = "UPDATE users SET nom=?, prenom=?, email=?, password=? WHERE id=?";
-
-            // Préparation de la requête
-            PreparedStatement preparedStatement = connexion.prepareStatement(sql);
-
-            // Bind des paramètres
+            //connexion
+            Statement smt = connexion.createStatement();
+            //requête
+            String req = "INSERT INTO users(nom,prenom,email,password) VALUE (?,?,?,?)";
+            //préparer la requête
+            PreparedStatement preparedStatement = connexion.prepareStatement(req);
+            //binder les 4 paramètres
             preparedStatement.setString(1, user.getNom());
             preparedStatement.setString(2, user.getPrenom());
             preparedStatement.setString(3, user.getEmail());
             preparedStatement.setString(4, user.getPassword());
-            preparedStatement.setInt(5, user.getId()); // Supposons que getId() retourne l'identifiant de l'utilisateur à mettre à jour
-
-            // Exécution de la requête
-            int updatedRows = preparedStatement.executeUpdate();
-
-            // Vérification si la mise à jour a réussi
-            if (updatedRows > 0) {
-                // Mise à jour réussie, mettez à jour l'objet User avec les nouvelles valeurs
-                updatedUser = user;
+            //exécution de la requête
+            int addedRows = preparedStatement.executeUpdate();
+            //tester si la requête est bien passé
+            if (addedRows > 0) {
+                //injecter les valeurs dans l'objet de sortie
+                useradd.setNom(user.getNom());
+                useradd.setPrenom(user.getPrenom());
+                useradd.setEmail(user.getEmail());
+                useradd.setPassword(user.getPassword());
             }
-
-            // Fermeture des ressources
-            preparedStatement.close();
+            smt.close();
             connexion.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return updatedUser;
+        return useradd;
     }
+    public static User findUser(User user){
+        User verif = new User();
+        try{
+            //connexion
+            Statement smt = connexion.createStatement();
+            //requête
+            String req = "SELECT id, nom, prenom,email, password FROM users WHERE email = ?";
+            //préparer la requête
+            PreparedStatement preparedStatement = connexion.prepareStatement(req);
+            //bind paramètre email
+            preparedStatement.setString(1, user.getEmail());
+            //résultat de la requête
+            ResultSet rs = preparedStatement.executeQuery();
+            System.out.println(rs);
+            //boucler sur le résultat
+            while (rs.next()){
+                //test si la colonne id  posséde  une valeur
+                if(rs.getString(1) !=null){
+                    verif.setId(rs.getInt(1));
+                    verif.setNom(rs.getString("nom"));
+                    verif.setPrenom(rs.getString("prenom"));
+                    verif.setEmail(rs.getString("email"));
+                    verif.setPassword(rs.getString("password"));
+                }
+            }
+            smt.close();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return verif;
+    }
+    public static User updateUser(User user){
+        User updateUser = new User();
+        try{
+            Statement smt = connexion.createStatement();
+            String req = "UPDATE users SET nom = ?, prenom = ? WHERE email = ?";
+            PreparedStatement preparedStatement = connexion.prepareStatement(req);
+            preparedStatement.setString(1, user.getNom());
+            preparedStatement.setString(2, user.getPrenom());
+            preparedStatement.setString(3, user.getEmail());
+            int nbrLigne = preparedStatement.executeUpdate();
+            if(nbrLigne == 1) {
+                updateUser.setNom(user.getNom());
+                updateUser.setPrenom(user.getPrenom());
+                updateUser.setEmail(user.getEmail());
+                updateUser.setPassword(user.getPassword());
+            }
+            smt.close();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return updateUser;
+    }
+    public static ArrayList<User> getAllUser() {
+        ArrayList<User> userList = new ArrayList<>();
+        try {
+            Statement smt = connexion.createStatement();
+            String req = "SELECT id, nom, prenom, email, password FROM users";
+            ResultSet rs = smt.executeQuery(req);
 
+            while (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setNom(rs.getString("nom"));
+                user.setPrenom(rs.getString("prenom"));
+                user.setEmail(rs.getString("email"));
+                user.setPassword(rs.getString("password"));
+                userList.add(user);
+            }
+            smt.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return userList;
+    }
 }
+
