@@ -117,5 +117,24 @@ public class UserManager {
         }
         return userList;
     }
+    public static boolean deleteUser(User user) {
+        boolean success = false;
+        try {
+            String req = "DELETE FROM users WHERE id = ?";
+            PreparedStatement preparedStatement = connexion.prepareStatement(req);
+            preparedStatement.setInt(1, user.getId());
+            int deletedRows = preparedStatement.executeUpdate();
+            if (deletedRows > 0) {
+                System.out.println("L'utilisateur avec l'ID " + user.getId() + " a été supprimé avec succès.");
+                success = true;
+            } else {
+                System.out.println("Impossible de trouver l'utilisateur avec l'ID " + user.getId() + ".");
+            }
+            preparedStatement.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return success;
+    }
 }
 
