@@ -8,7 +8,7 @@ public class Main {
 
         User userToDelete = new User();
         userToDelete.setId(1);
-        boolean deleted = UserManager.deleteUser(userToDelete);
+        boolean deleted = UserManager.deleteUserById(userToDelete);
         if (deleted) {
             System.out.println("Utilisateur supprimé avec succès !");
         } else {

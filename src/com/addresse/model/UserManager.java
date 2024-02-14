@@ -117,7 +117,7 @@ public class UserManager {
         }
         return userList;
     }
-    public static boolean deleteUser(User user) {
+    public static boolean deleteUserById(User user) {
         boolean success = false;
         try {
             String req = "DELETE FROM users WHERE id = ?";
