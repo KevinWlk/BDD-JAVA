@@ -5,6 +5,9 @@ public class Main {
         DbConnexion.getConnexion();
         User test = new User("Walencik", "Kevin", "test@test.com","1234");
         UserManager userManager = new UserManager();
-        userManager.addUser(test);
+//        userManager.addUser(test);
+
+        test.setPrenom("Kévin");
+        userManager.updateUser(test);
     }
 }
