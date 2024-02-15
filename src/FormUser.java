@@ -39,7 +39,7 @@ public class FormUser extends JDialog {
                     return;
                 }
 
-                // Vérification du format de l'e-mail
+                // Vérification du format de l'e-mail (regex)
                 String emailRegex = "^(.+)@(.+)$";
                 Pattern pattern = Pattern.compile(emailRegex);
                 Matcher matcher = pattern.matcher(tfMail.getText());
@@ -51,7 +51,7 @@ public class FormUser extends JDialog {
                     return;
                 }
 
-                // Vérification du mot de passe
+                // Vérification du mot de passe (regex)
                 String password = String.valueOf(pfPassword.getPassword());
                 if (password.length() < 12 || !password.matches(".*\\d.*") || !password.matches(".*[a-z].*") || !password.matches(".*[A-Z].*")) {
                     JOptionPane.showMessageDialog(parent,
@@ -61,7 +61,7 @@ public class FormUser extends JDialog {
                     return;
                 }
 
-                // Vérification de l'existence de l'utilisateur dans la base de données par e-mail
+                // Vérification de l'existence de l'utilisateur dans la BDD par l'email
                 User newUser = new User(tfNom.getText(), tfPrenom.getText(), tfMail.getText(), String.valueOf(pfPassword.getPassword()));
                 User existingUser = UserManager.findUser(newUser);
                 if (existingUser.getId() != 0) {
@@ -79,7 +79,8 @@ public class FormUser extends JDialog {
                             "Le compte a été ajouté à la base de données avec succès.",
                             "Succès",
                             JOptionPane.INFORMATION_MESSAGE);
-                    dispose(); // Fermer la fenêtre après l'ajout de l'utilisateur
+                    // Fermer la fenêtre après l'ajout de l'utilisateur
+                    dispose();
                 } else {
                     JOptionPane.showMessageDialog(parent,
                             "Une erreur est survenue lors de l'ajout de l'utilisateur à la base de données.",
