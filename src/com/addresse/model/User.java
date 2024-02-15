@@ -1,6 +1,6 @@
 package com.addresse.model;
 
-public class User {
+public class User{
     /**----------------------------
      Attributs
      -----------------------------*/
