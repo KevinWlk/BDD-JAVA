@@ -1,50 +1,91 @@
 import com.addresse.model.User;
+import com.addresse.model.UserManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class FormUser extends JDialog{
+public class FormUser extends JDialog {
     private JPanel jpMain;
     private JTextField tfNom;
     private JTextField tfPrenom;
     private JTextField tfMail;
-    private JTextField tfPassword;
+    private JPasswordField pfPassword;
     private JLabel jlNom;
     private JLabel jlPrenom;
     private JLabel jlMail;
     private JLabel jlPassword;
     private JButton jbAdd;
-    private JButton cliquePasIciButton;
 
-    public FormUser(JDialog parent){
+    public FormUser(JDialog parent) {
         super(parent);
-        setTitle("Ma super fenêtre");
+        setTitle("Formulaire d'inscription");
         setContentPane(jpMain);
-        setMinimumSize(new Dimension(300 ,400));
+        setMinimumSize(new Dimension(300, 400));
         setModal(false);
         setVisible(true);
         jbAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // Vérification des champs vides
+                if (tfNom.getText().isEmpty() || tfPrenom.getText().isEmpty() || tfMail.getText().isEmpty() || String.valueOf(pfPassword.getPassword()).isEmpty()) {
+                    JOptionPane.showMessageDialog(parent,
+                            "Veuillez remplir tous les champs du formulaire",
+                            "Erreur",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-                // Récupérer les valeurs saisies dans les champs de texte
-                String nom = tfNom.getText();
-                String prenom = tfPrenom.getText();
-                String email = tfMail.getText();
-                String password = tfPassword.getText();
+                // Vérification du format de l'e-mail
+                String emailRegex = "^(.+)@(.+)$";
+                Pattern pattern = Pattern.compile(emailRegex);
+                Matcher matcher = pattern.matcher(tfMail.getText());
+                if (!matcher.matches()) {
+                    JOptionPane.showMessageDialog(parent,
+                            "Veuillez saisir une adresse e-mail valide",
+                            "Erreur",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-                User newUser = new User(nom, prenom, email, password);
+                // Vérification du mot de passe
+                String password = String.valueOf(pfPassword.getPassword());
+                if (password.length() < 12 || !password.matches(".*\\d.*") || !password.matches(".*[a-z].*") || !password.matches(".*[A-Z].*")) {
+                    JOptionPane.showMessageDialog(parent,
+                            "Le mot de passe doit contenir au moins 12 caractères, des chiffres, une lettre minuscule et une lettre majuscule",
+                            "Erreur",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-                System.out.println("-------------------------------------------------------------------");
-                System.out.println("Liste des utilisateurs :");
-                System.out.println("-------------------------------------------------------------------");
-                System.out.printf("| %-10s | %-10s | %-20s | %-15s |\n", "Nom", "Prénom", "Email", "Password");
-                System.out.println("-------------------------------------------------------------------");
-                System.out.printf("| %-10s | %-10s | %-20s | %-15s |\n",
-                        newUser.getNom(), newUser.getPrenom(), newUser.getEmail(), newUser.getPassword());
-                System.out.println("-------------------------------------------------------------------");
+                // Vérification de l'existence de l'utilisateur dans la base de données par e-mail
+                User newUser = new User(tfNom.getText(), tfPrenom.getText(), tfMail.getText(), String.valueOf(pfPassword.getPassword()));
+                User existingUser = UserManager.findUser(newUser);
+                if (existingUser.getId() != 0) {
+                    JOptionPane.showMessageDialog(parent,
+                            "L'utilisateur avec l'adresse e-mail " + newUser.getEmail() + " existe déjà.",
+                            "Utilisateur existant",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
+                // Ajout de l'utilisateur à la base de données
+                User addedUser = UserManager.addUser(newUser);
+                if (addedUser != null) {
+                    JOptionPane.showMessageDialog(parent,
+                            "Le compte a été ajouté à la base de données avec succès.",
+                            "Succès",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    dispose(); // Fermer la fenêtre après l'ajout de l'utilisateur
+                } else {
+                    JOptionPane.showMessageDialog(parent,
+                            "Une erreur est survenue lors de l'ajout de l'utilisateur à la base de données.",
+                            "Erreur",
+                            JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
     }
