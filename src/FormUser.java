@@ -40,14 +40,14 @@ public class FormUser extends JDialog {
                 }
 
                 // Vérification du format de l'e-mail (regex)
-                String emailRegex = "^(.+)@(.+)$";
+                String emailRegex = "^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
                 Pattern pattern = Pattern.compile(emailRegex);
                 Matcher matcher = pattern.matcher(tfMail.getText());
                 if (!matcher.matches()) {
                     JOptionPane.showMessageDialog(parent,
                             "Veuillez saisir une adresse e-mail valide",
                             "Erreur",
-                            JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
 
@@ -68,24 +68,24 @@ public class FormUser extends JDialog {
                     JOptionPane.showMessageDialog(parent,
                             "L'utilisateur avec l'adresse e-mail " + newUser.getEmail() + " existe déjà.",
                             "Utilisateur existant",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
-
-                // Ajout de l'utilisateur à la base de données
-                User addedUser = UserManager.addUser(newUser);
-                if (addedUser != null) {
-                    JOptionPane.showMessageDialog(parent,
-                            "Le compte a été ajouté à la base de données avec succès.",
-                            "Succès",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    // Fermer la fenêtre après l'ajout de l'utilisateur
-                    dispose();
-                } else {
-                    JOptionPane.showMessageDialog(parent,
-                            "Une erreur est survenue lors de l'ajout de l'utilisateur à la base de données.",
-                            "Erreur",
                             JOptionPane.ERROR_MESSAGE);
+                    return;
+                } else {
+                    // Ajout de l'utilisateur à la base de données
+                    User addedUser = UserManager.addUser(newUser);
+                    if (addedUser != null) {
+                        JOptionPane.showMessageDialog(parent,
+                                "Le compte a été ajouté à la base de données avec succès.",
+                                "Succès",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        // Fermer la fenêtre après l'ajout de l'utilisateur
+                        dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(parent,
+                                "Une erreur est survenue lors de l'ajout de l'utilisateur à la base de données.",
+                                "Erreur",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         });
